@@ -1,0 +1,237 @@
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = [
+    "--strict-markers",
+    "--strict-config",
+    "--tb=short",
+    "-v",
+]
+filterwarnings = [
+    "error",
+    # coverage.py may emit CoverageWarning during measurement (e.g., if a
+    # source file is never imported). Since we run under 'coverage run -m pytest',
+    # these warnings fire inside the pytest session and 'error' would crash it.
+    "ignore::coverage.exceptions.CoverageWarning",
+]
+markers = [
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+    "integration: marks integration tests",
+]
+
+# =============================================================================
+# Coverage configuration
+# =============================================================================
+# coverage.py reads these sections automatically from pyproject.toml.
+# Run with: python -m coverage run -m pytest
+# =============================================================================
+
+[tool.coverage.run]
+source = ["."]
+branch = true
+omit = [
+    "tests/*",
+    "examples/*",
+]
+
+[tool.coverage.report]
+show_missing = true
+skip_empty = true
+# Exclude tests and examples from application coverage.
+omit = [
+    "tests/*",
+    "examples/*",
+]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "if TYPE_CHECKING:",
+    "if __name__ == .__main__.",
+    "raise NotImplementedError",
+    "@(abc\\.)?abstractmethod",
+]
+
+[tool.coverage.html]
+directory = "htmlcov"
+
+# =============================================================================
+# Ruff configuration
+# =============================================================================
+
+[tool.ruff]
+target-version = "py312"
+line-length = 100
+
+# Exclude non-Python files and directories
+exclude = [
+    "__pycache__",
+    ".git",
+    ".venv",
+    ".mypy_cache",
+    ".pytest_cache",
+    ".ruff_cache",
+    "build",
+    "dist",
+]
+
+[tool.ruff.lint]
+extend-select = [
+    "E",       # pycodestyle errors
+    "W",       # pycodestyle warnings
+    "F",       # Pyflakes
+    "I",       # isort
+    "N",       # pep8-naming
+    "UP",      # pyupgrade
+    "B",       # flake8-bugbear
+    "C4",      # flake8-comprehensions
+    "COM818",  # trailing-comma-on-bare-tuple
+    "T20",     # flake8-print
+    "RUF",     # Ruff-specific rules
+    "S",       # flake8-bandit (security)
+    "PT",      # flake8-pytest-style
+    "C90",     # mccabe complexity
+    "FIX",     # flake8-fixme
+    "TD",      # flake8-todos
+    "LOG",     # flake8-logging
+    "FAST",    # FastAPI — no-op unless FastAPI is installed
+    "ANN",     # flake8-annotations
+    "ASYNC",   # flake8-async
+    "BLE",     # flake8-blind-except
+    "PERF",    # Perflint
+    "ERA",     # eradicate
+    "SIM",     # flake8-simplify
+    "PIE",     # flake8-pie
+    "RET",     # flake8-return
+    "ARG",     # flake8-unused-arguments
+    "DTZ",     # flake8-datetimez
+    "ICN",     # flake8-import-conventions
+    "FLY",     # flynt (f-string conversion)
+    "FURB",    # refurb (modernization)
+    "PGH",     # pygrep-hooks
+    "PTH",     # flake8-use-pathlib
+    "RSE",     # flake8-raise
+    "TC",      # flake8-type-checking
+    "TID",     # flake8-tidy-imports
+    "ISC",     # flake8-implicit-str-concat
+    "PL",      # pylint via ruff
+    "TRY",     # tryceratops
+    "G",       # flake8-logging-format
+    "SLF",     # flake8-self
+]
+
+ignore = [
+    "E501",      # line length handled by formatter
+    "E203",      # whitespace before ':' (conflicts with ruff format)
+    "COM812",    # trailing comma (conflicts with formatter)
+    "COM819",    # trailing comma (conflicts with formatter)
+    "ISC001",    # implicit string concat on single line (conflicts with formatter)
+    "TRY003",    # long messages in exception constructors — too strict for standalone apps
+    "PLR0913",   # too many function arguments — config-heavy apps legitimately need 6+
+    "PLR2004",   # magic value comparisons — noisy false positives in business logic
+    "TRY300",    # try/except/else style — adds cognitive overhead without meaningful safety
+]
+
+# Allow fix for all enabled rules (when `--fix`) is provided.
+fixable = ["ALL"]
+unfixable = []
+
+# Per-file ignores for test files
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = [
+    "T20",     # Allow print statements in tests
+    "N802",    # Allow lowercase function names (test methods can be descriptive)
+    "N806",    # Allow non-lowercase variable names in tests
+    "F401",    # Allow unused imports (fixtures may appear unused)
+    "F811",    # Allow redefinition of unused names (common with fixtures)
+    "F841",    # Allow unused variables (common in test assertions)
+    "B018",    # Allow useless expressions (common in test assertions)
+    "UP007",   # Allow Union syntax instead of | for older Python compatibility
+    "RUF012",  # Allow mutable class attributes (common in test classes)
+    "S101",    # Allow assert in tests
+    "ARG",     # Unused arguments common in fixtures/parametrize callbacks
+    "SLF001",  # Accessing private members is normal in unit tests
+    "PLR2004", # Magic values in assertions are expected
+    "PLR6301", # Methods that don't use self (test classes often don't)
+    "PT004",   # Fixtures that don't return a value (setup fixtures)
+    "PLC0415", # Imports inside test functions for isolation
+    "TRY301",  # Abstract raise — intentional in test setups
+    "SIM117",  # Nested with statements — readability preference in tests
+]
+"tests/conftest.py" = [
+    "F401",    # Allow unused imports in conftest.py (fixtures)
+]
+# Allow some flexibility in scripts and configuration files
+"app.py" = ["T20"]       # Allow print statements in main app file
+"src/utils/config_watcher.py" = ["PLW0603"]  # Global state is intentional for thread management
+
+[tool.ruff.lint.isort]
+known-first-party = ["src"]
+force-sort-within-sections = true
+split-on-trailing-comma = true
+
+[tool.ruff.lint.mccabe]
+max-complexity = 10
+
+[tool.ruff.lint.pylint]
+max-args = 7
+max-returns = 8
+max-branches = 12
+max-statements = 50
+
+[tool.ruff.lint.flake8-pytest-style]
+fixture-parentheses = false
+mark-parentheses = false
+
+[tool.ruff.lint.flake8-tidy-imports]
+ban-relative-imports = "all"
+
+[tool.ruff.lint.flake8-type-checking]
+runtime-evaluated-base-classes = [
+    "pydantic.BaseModel",
+    "dataclasses.dataclass",
+]
+
+[tool.ruff.format]
+# Use double quotes for strings
+quote-style = "double"
+# Use spaces instead of tabs for indentation
+indent-style = "space"
+# Respect magic trailing commas
+skip-magic-trailing-comma = false
+# Automatically detect line ending
+line-ending = "auto"
+
+# Mypy configuration
+[tool.mypy]
+python_version = "3.12"
+files = ["src", "tests", "app.py"]
+explicit_package_bases = true  # Equivalent to --explicit-package-bases flag
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+check_untyped_defs = true
+disallow_untyped_decorators = true
+disallow_any_explicit = true
+disallow_any_generics = true
+no_implicit_optional = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+warn_no_return = true
+warn_unreachable = true
+strict_equality = true
+show_error_codes = true
+
+# Per-module options for tests
+[[tool.mypy.overrides]]
+module = "tests.*"
+disallow_untyped_defs = false
+disallow_incomplete_defs = false
+disallow_untyped_decorators = false
+warn_no_return = false
+warn_return_any = false
+check_untyped_defs = false
+ignore_errors = false  # Still catch real errors in tests

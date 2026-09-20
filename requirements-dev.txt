@@ -1,0 +1,8 @@
+# Development dependencies
+-r requirements.txt
+pytest==9.0.3
+coverage==7.13.2
+ruff==0.14.14
+mypy==1.19.1
+# When adding third-party dependencies, install matching type stubs if available
+# (e.g., types-requests, types-pyyaml) to satisfy strict mypy type checking.

@@ -1,0 +1,6 @@
+{
+    "example_uninitialized": 42,
+    "log_level": "DEBUG",
+    "log_type": "TEXT",
+    "example_config": "test_value"
+}
